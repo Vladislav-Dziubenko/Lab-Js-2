@@ -1,0 +1,78 @@
+1.В чем преимущества использования колбэков при работе с массивами?
+Колбэки при работе с массивами удобны тем, что мы один раз пишем общую функцию, которая 
+просто бегает по массиву, а что именно делать с каждым элементом, передаём отдельной 
+функцией‑колбэком.То есть цикл for мы не копируем десять раз, а используем один и тот же, 
+просто подставляем разную логику. Так код получается короче, опрятнее и легче читать: 
+по названиям уже понятно, что map что‑то преобразует, filter отбирает элементы по условию, 
+find ищет первый подходящий элемент и так далее.
+2.Какие проблемы могут возникать при использовании колбэков и как их избежать?
+Проблемы с колбэками в основном такие: если начать всё подряд писать через вложенные колбэки,
+особенно в асинхронном коде, получается так называемый “callback hell” — код трудно читать 
+и разбираться, где что происходит. Ещё бывают мелкие приколы с this, когда внутри колбэка 
+контекст оказывается не тем, что мы ожидали. Обычно это решается просто: не городить глубокие
+вложенности, выносить колбэки в отдельные именованные функции, использовать стрелочные функции,
+а в асинхронном коде вместо кучи колбэков переходить на Promise и async/await.
+3.Как реализовать функции map, filter, find, some, every и reduce без использования 
+встроенных методов массивов?
+Реализовать такие функции, как map, filter, find, some, every и reduce, можно обычными циклами,
+без встроенных методов массивов. Пример:
+function map(array, callback) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        result.push(callback(array[i], i, array));
+    }
+    return result;
+}
+
+function filter(array, callback) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            result.push(array[i]);
+        }
+    }
+    return result;
+}
+
+function find(array, callback) {
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            return array[i];
+        }
+    }
+    return undefined;
+}
+
+function some(array, callback) {
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function every(array, callback) {
+    for (let i = 0; i < array.length; i++) {
+        if (!callback(array[i], i, array)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function reduce(array, callback, initialValue) {
+    let i = 0;
+    let acc = initialValue;
+
+    if (acc === undefined) {
+        acc = array[0];
+        i = 1;
+    }
+
+    for (; i < array.length; i++) {
+        acc = callback(acc, array[i], i, array);
+    }
+
+    return acc;
+}
